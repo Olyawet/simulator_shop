@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Симулятор магазина</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Запрет копирования контента -->
+    <style>
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="shop-name">Магазин "Бабочка"</h1>
+        <div id="game-time" class="game-time">
+            <span id="game-date">01.01.2023</span>
+            <span id="game-time-display">07:00</span>
+        </div>
+        <div id="rating-display" class="rating-display">
+            <span>Рейтинг: </span>
+            <span id="shop-rating">5.0</span>
+            <div id="rating-stars" class="rating-stars">★★★★★</div>
+        </div>
+    </header>
+    <div class="statistics">
+        <div class="stat-item">
+            <span>Деньги:</span>
+            <span id="money">1000</span> ₽
+        </div>
+        <div class="stat-item">
+            <span>Налог:</span>
+            <span id="tax-rate">20</span>%
+        </div>
+        <div class="stat-item">
+            <span>Клиентов обслужено:</span>
+            <span id="customers-served">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Товаров продано:</span>
+            <span id="products-sold">0</span>
+        </div>
+    </div>
+
+    <div class="main-tabs">
+        <button class="tab-button active" data-tab="shop">Магазин</button>
+        <button class="tab-button" data-tab="staff">Персонал</button>
+        <button class="tab-button" data-tab="finance">Финансы</button>
+        <button class="tab-button" data-tab="marketing">Маркетинг</button>
+        <button class="tab-button" data-tab="reviews">Отзывы</button>
+        <button class="tab-button" data-tab="settings">Настройки</button>
+    </div>
+
+    <main>
+        <!-- Вкладка Магазин -->
+        <div id="shop-tab" class="tab-content active">
+            <div class="shop-controls">
+                <button id="open-shop">Открыть магазин</button>
+                <button id="close-shop">Закрыть магазин</button>
+                <button id="restock-all">Пополнить все товары</button>
+                <button id="selective-restock">Выборочное пополнение</button>
+                <button id="edit-prices">Изменить цены</button>
+                <button id="sleep-button" class="hidden">Спать</button>
+            </div>
+
+            <div class="cleanliness-container">
+                <div class="cleanliness-label">Чистота помещения:</div>
+                <div class="cleanliness-bar">
+                    <div id="cleanliness-progress" class="cleanliness-progress" style="width: 100%;"></div>
+                </div>
+                <span id="cleanliness-value">100%</span>
+                <button id="clean-shop">Убрать</button>
+            </div>
+
+            <div class="customer-area">
+                <h2>Покупатель</h2>
+                <div id="customer-display">Магазин закрыт</div>
+            </div>
+
+             <div class="inventory-section">
+                <h2>Товары</h2>
+                <div class="inventory-controls">
+                    <div class="search-container">
+                        <input type="text" id="product-search" placeholder="Поиск товаров...">
+                        <button id="filter-products">Категории</button>
+                    </div>
+                    <div class="pagination">
+                        <button id="prev-page">◀</button>
+                        <span id="page-info">Страница 1 из 10</span>
+                        <button id="next-page">▶</button>
+                    </div>
+                </div>
+                <div id="products-container" class="products-container"></div>
+            </div>
+        </div>
+
+        <!-- Вкладка Персонал -->
+        <div id="staff-tab" class="tab-content">
+            <div class="staff-controls">
+                <button id="hire-employee">Нанять сотрудника</button>
+                <button id="view-director">Директор</button>
+            </div>
+            <div class="staff-list">
+                <h2>Сотрудники</h2>
+                <div id="employees-container" class="employees-container">
+                    <div class="empty-staff-message">У вас пока нет сотрудников. Нажмите "Нанять сотрудника", чтобы начать.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Финансы -->
+        <div id="finance-tab" class="tab-content">
+            <div class="finance-tabs">
+                <button class="finance-tab-button active" data-finance-tab="income">Доходы</button>
+                <button class="finance-tab-button" data-finance-tab="expenses">Расходы</button>
+                <button class="finance-tab-button" data-finance-tab="taxes">Налоги</button>
+            </div>
+            <div id="income-tab" class="finance-tab-content active">
+                <h2>Доходы</h2>
+                <div class="income-summary">
+                    <div class="summary-item">
+                        <span>Сегодня:</span>
+                        <span id="today-income">0</span> ₽
+                    </div>
+                    <div class="summary-item">
+                        <span>Вчера:</span>
+                        <span id="yesterday-income">0</span> ₽
+                    </div>
+                    <div class="summary-item">
+                        <span>За неделю:</span>
+                        <span id="week-income">0</span> ₽
+                    </div>
+                    <div class="summary-item">
+                        <span>За месяц:</span>
+                        <span id="month-income">0</span> ₽
+                    </div>
+                </div>
+                <div id="income-history" class="finance-history">
+                    <!-- История доходов будет добавлена через JavaScript -->
+                </div>
+            </div>
+            <div id="expenses-tab" class="finance-tab-content">
+                <h2>Расходы</h2>
+                <div class="expenses-summary">
+                    <div class="summary-item">
+                        <span>Зарплаты:</span>
+                        <span id="salary-expenses">0</span> ₽/мес
+                    </div>
+                    <div class="summary-item">
+                        <span>Реклама:</span>
+                        <span id="ad-expenses">0</span> ₽/нед
+                    </div>
+                    <div class="summary-item">
+                        <span>Товары:</span>
+                        <span id="restock-expenses">0</span> ₽
+                    </div>
+                </div>
+                <div id="expenses-history" class="finance-history">
+                    <!-- История расходов будет добавлена через JavaScript -->
+                </div>
+            </div>
+            <div id="taxes-tab" class="finance-tab-content">
+                <h2>Налоги</h2>
+                <div class="tax-summary">
+                    <div class="summary-item">
+                        <span>Налоговая ставка:</span>
+                        <span id="tax-rate-display">20</span>%
+                    </div>
+                    <div class="summary-item">
+                        <span>Следующий платеж:</span>
+                        <span id="next-tax-payment">01.02.2023</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Сумма к оплате:</span>
+                        <span id="tax-amount-due">0</span> ₽
+                    </div>
+                </div>
+                <div id="tax-history" class="finance-history">
+                    <!-- История налоговых платежей будет добавлена через JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Вкладка Маркетинг -->
+        <div id="marketing-tab" class="tab-content">
+            <h2>Маркетинг и реклама</h2>
+            <div class="active-ads">
+                <h3>Активные рекламные кампании</h3>
+                <div id="active-ads-container" class="active-ads-container">
+                    <div class="empty-ads-message">У вас нет активных рекламных кампаний.</div>
+                </div>
+            </div>
+            <div class="marketing-controls">
+                <button id="buy-ads">Купить рекламу</button>
+            </div>
+        </div>
+
+        <!-- Вкладка Отзывы -->
+        <div id="reviews-tab" class="tab-content">
+            <h2>Отзывы покупателей</h2>
+            <div class="reviews-summary">
+                <div class="rating-summary">
+                    <div class="big-rating">
+                        <span id="average-rating">5.0</span>
+                        <div class="big-stars">★★★★★</div>
+                    </div>
+                    <div class="rating-counts">
+                        <div class="rating-count-item">
+                            <span>5★</span>
+                            <div class="rating-bar">
+                                <div id="five-star-bar" class="rating-bar-fill" style="width: 100%;"></div>
+                            </div>
+                            <span id="five-star-count">0</span>
+                        </div>
+                        <div class="rating-count-item">
+                            <span>4★</span>
+                            <div class="rating-bar">
+                                <div id="four-star-bar" class="rating-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <span id="four-star-count">0</span>
+                        </div>
+                        <div class="rating-count-item">
+                            <span>3★</span>
+                            <div class="rating-bar">
+                                <div id="three-star-bar" class="rating-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <span id="three-star-count">0</span>
+                        </div>
+                        <div class="rating-count-item">
+                            <span>2★</span>
+                            <div class="rating-bar">
+                                <div id="two-star-bar" class="rating-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <span id="two-star-count">0</span>
+                        </div>
+                        <div class="rating-count-item">
+                            <span>1★</span>
+                            <div class="rating-bar">
+                                <div id="one-star-bar" class="rating-bar-fill" style="width: 0%;"></div>
+                            </div>
+                            <span id="one-star-count">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="reviews-container" class="reviews-container">
+                <!-- Отзывы будут добавлены через JavaScript -->
+                <div class="empty-reviews-message">Пока нет отзывов от покупателей.</div>
+            </div>
+        </div>
+
+        <!-- Вкладка Настройки -->
+        <div id="settings-tab" class="tab-content">
+            <h2>Настройки</h2>
+            <div class="settings-container">
+                <div class="form-group">
+                    <label for="shop-name-input">Название магазина:</label>
+                    <input type="text" id="shop-name-input" value="Бабочка">
+                </div>
+                <div class="form-group">
+                    <label for="tax-rate-input">Налоговая ставка (%):</label>
+                    <input type="number" id="tax-rate-input" min="0" max="50" value="20">
+                </div>
+                <h3>Цветовая схема</h3>
+                <div class="color-settings">
+                    <div class="form-group">
+                        <label for="header-color">Цвет заголовка:</label>
+                        <input type="color" id="header-color" value="#ff9800">
+                    </div>
+                    <div class="form-group">
+                        <label for="accent-color">Цвет акцента:</label>
+                        <input type="color" id="accent-color" value="#ff5722">
+                    </div>
+                    <div class="form-group">
+                        <label for="background-color">Цвет фона:</label>
+                        <input type="color" id="background-color" value="#f5f5f5">
+                    </div>
+                </div>
+                <div class="settings-buttons">
+                    <button id="save-settings">Сохранить настройки</button>
+                    <button id="save-game">Сохранить игру</button>
+                    <button id="reset-game">Сбросить игру</button>
+                </div>
+            </div>
+        </main>
+
+    <div id="customer-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Покупатель</h3>
+            <div id="customer-cart"></div>
+            <div class="price-details">
+                <div class="subtotal">
+                    <span>Подытог:</span>
+                    <span id="cart-subtotal">0</span> ₽
+                </div>
+                <div class="total-price">
+                    <span>Итого:</span>
+                    <span id="cart-total">0</span> ₽
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button id="complete-sale">Завершить продажу</button>
+                <button id="cancel-sale">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог настроек -->
+    <div id="settings-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Настройки магазина</h3>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label for="shop-name-input">Название магазина:</label>
+                    <input type="text" id="shop-name-input" maxlength="30">
+                </div>
+                <div class="form-group">
+                    <label for="tax-rate-input">Ставка налога (%):</label>
+                    <input type="number" id="tax-rate-input" min="0" max="50" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Цветовая схема:</label>
+                    <div class="color-settings">
+                        <div class="color-option">
+                            <label for="header-color">Цвет шапки:</label>
+                            <input type="color" id="header-color">
+                        </div>
+                        <div class="color-option">
+                            <label for="accent-color">Цвет акцентов:</label>
+                            <input type="color" id="accent-color">
+                        </div>
+                        <div class="color-option">
+                            <label for="background-color">Цвет фона:</label>
+                            <input type="color" id="background-color">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button id="save-settings">Сохранить</button>
+                <button id="cancel-settings">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог пополнения товаров -->
+    <div id="restock-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Пополнение товаров</h3>
+            <div id="restock-products-list"></div>
+            <div class="restock-summary">
+                <div>Общая стоимость: <span id="restock-cost">0</span> ₽</div>
+            </div>
+            <div class="dialog-buttons">
+                <button id="confirm-restock">Пополнить</button>
+                <button id="cancel-restock">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог изменения цен -->
+    <div id="price-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Изменение цен</h3>
+            <div id="price-products-list"></div>
+            <div class="dialog-buttons">
+                <button id="confirm-prices">Сохранить</button>
+                <button id="cancel-prices">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог найма сотрудников -->
+    <div id="hire-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Нанять сотрудника</h3>
+            <div id="candidates-list" class="candidates-list">
+                <!-- Кандидаты будут добавлены через JavaScript -->
+            </div>
+            <div class="dialog-buttons">
+                <button id="refresh-candidates">Обновить список</button>
+                <button id="cancel-hire">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог информации о сотруднике -->
+    <div id="employee-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3 id="employee-name">Имя сотрудника</h3>
+            <div class="employee-info">
+                <div class="employee-stats">
+                    <div class="employee-stat">
+                        <span>Зарплата:</span>
+                        <span id="employee-salary">0</span> ₽/мес
+                    </div>
+                    <div class="employee-stat">
+                        <span>Работает с:</span>
+                        <span id="employee-hire-date">01.01.2023</span>
+                    </div>
+                </div>
+                <div class="employee-skills">
+                    <h4>Навыки</h4>
+                    <div class="skill-item">
+                        <span>Обслуживание клиентов:</span>
+                        <div class="skill-bar">
+                            <div id="customer-service-skill" class="skill-progress" style="width: 50%;"></div>
+                        </div>
+                        <span id="customer-service-value">5/10</span>
+                    </div>
+                    <div class="skill-item">
+                        <span>Уборка:</span>
+                        <div class="skill-bar">
+                            <div id="cleaning-skill" class="skill-progress" style="width: 70%;"></div>
+                        </div>
+                        <span id="cleaning-value">7/10</span>
+                    </div>
+                    <div class="skill-item">
+                        <span>Работа с товаром:</span>
+                        <div class="skill-bar">
+                            <div id="inventory-skill" class="skill-progress" style="width: 60%;"></div>
+                        </div>
+                        <span id="inventory-value">6/10</span>
+                    </div>
+                </div>
+                <div class="employee-traits">
+                    <h4>Черты характера</h4>
+                    <ul id="employee-traits-list">
+                        <!-- Черты будут добавлены через JavaScript -->
+                    </ul>
+                </div>
+            </div>
+            <div class="employee-actions">
+                <button id="give-bonus">Выдать премию</button>
+                <button id="praise-employee">Похвалить</button>
+                <button id="reprimand-employee">Сделать выговор</button>
+                <button id="fire-employee">Уволить</button>
+            </div>
+            <div class="dialog-buttons">
+                <button id="close-employee-dialog">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог директора -->
+    <div id="director-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Директор</h3>
+            <div class="director-info">
+                <div class="director-stats">
+                    <div class="director-stat">
+                        <span>Имя:</span>
+                        <span id="director-name">Иван Иванович</span>
+                    </div>
+                    <div class="director-stat">
+                        <span>Зарплата:</span>
+                        <span id="director-salary">50000</span> ₽/мес
+                    </div>
+                </div>
+                <div class="director-skills">
+                    <h4>Навыки</h4>
+                    <div class="skill-item">
+                        <span>Управление:</span>
+                        <div class="skill-bar">
+                            <div id="management-skill" class="skill-progress" style="width: 80%;"></div>
+                        </div>
+                        <span id="management-value">8/10</span>
+                    </div>
+                    <div class="skill-item">
+                        <span>Мотивация персонала:</span>
+                        <div class="skill-bar">
+                            <div id="motivation-skill" class="skill-progress" style="width: 70%;"></div>
+                        </div>
+                        <span id="motivation-value">7/10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="director-actions">
+                <button id="give-director-bonus">Выдать премию</button>
+                <button id="fire-director">Уволить</button>
+            </div>
+            <div class="dialog-buttons">
+                <button id="close-director-dialog">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог покупки рекламы -->
+    <div id="ads-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Покупка рекламы</h3>
+            <div class="ads-options">
+                <div class="ad-option">
+                    <input type="radio" name="ad-type" id="leaflets" value="leaflets">
+                    <label for="leaflets">
+                        <h4>Листовки</h4>
+                        <p>Привлекает небольшое количество покупателей. Стоимость: 1000 ₽/неделя</p>
+                    </label>
+                </div>
+                <div class="ad-option">
+                    <input type="radio" name="ad-type" id="local-newspaper" value="newspaper">
+                    <label for="local-newspaper">
+                        <h4>Реклама в местной газете</h4>
+                        <p>Привлекает среднее количество покупателей. Стоимость: 5000 ₽/неделя</p>
+                    </label>
+                </div>
+                <div class="ad-option">
+                    <input type="radio" name="ad-type" id="radio-ad" value="radio">
+                    <label for="radio-ad">
+                        <h4>Реклама на радио</h4>
+                        <p>Привлекает большое количество покупателей. Стоимость: 15000 ₽/неделя</p>
+                    </label>
+                </div>
+                <div class="ad-option">
+                    <input type="radio" name="ad-type" id="tv-ad" value="tv">
+                    <label for="tv-ad">
+                        <h4>Реклама на ТВ</h4>
+                        <p>Привлекает очень большое количество покупателей. Стоимость: 50000 ₽/неделя</p>
+                    </label>
+                </div>
+            </div>
+            <div class="ad-duration">
+                <label for="ad-weeks">Продолжительность (недель):</label>
+                <input type="number" id="ad-weeks" min="1" max="4" value="1">
+            </div>
+            <div class="ad-cost">
+                <span>Общая стоимость: </span>
+                <span id="ad-total-cost">0</span> ₽
+            </div>
+            <div class="dialog-buttons">
+                <button id="confirm-ad">Купить</button>
+                <button id="cancel-ad">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог бонуса сотруднику -->
+    <div id="bonus-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Выдать премию</h3>
+            <div class="form-group">
+                <label for="bonus-amount">Сумма премии (₽):</label>
+                <input type="number" id="bonus-amount" min="100" step="100" value="1000">
+            </div>
+            <div class="dialog-buttons">
+                <button id="confirm-bonus">Выдать</button>
+                <button id="cancel-bonus">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог категорий товаров -->
+    <div id="category-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Категории товаров</h3>
+            <div class="category-list">
+                <div class="category-item">
+                    <input type="checkbox" id="category-all" checked>
+                    <label for="category-all">Все категории</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-food">
+                    <label for="category-food">Продукты питания</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-drinks">
+                    <label for="category-drinks">Напитки</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-bakery">
+                    <label for="category-bakery">Хлебобулочные изделия</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-dairy">
+                    <label for="category-dairy">Молочные продукты</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-meat">
+                    <label for="category-meat">Мясные продукты</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-fruits">
+                    <label for="category-fruits">Фрукты и овощи</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-sweets">
+                    <label for="category-sweets">Сладости</label>
+                </div>
+                <div class="category-item">
+                    <input type="checkbox" id="category-household">
+                    <label for="category-household">Бытовые товары</label>
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button id="apply-categories">Применить</button>
+                <button id="cancel-categories">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Диалог настройки начальной даты -->
+    <div id="start-date-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3>Выберите начальную дату</h3>
+            <div class="form-group">
+                <label for="start-day">День:</label>
+                <input type="number" id="start-day" min="1" max="31" value="1">
+            </div>
+            <div class="form-group">
+                <label for="start-month">Месяц:</label>
+                <input type="number" id="start-month" min="1" max="12" value="1">
+            </div>
+            <div class="form-group">
+                <label for="start-year">Год:</label>
+                <input type="number" id="start-year" min="2000" max="2030" value="2023">
+            </div>
+            <div class="dialog-buttons">
+                <button id="confirm-start-date">Начать игру</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
